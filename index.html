@@ -227,6 +227,22 @@
         .order-actions {
             margin-top: 10px;
         }
+        /* 图片上传预览样式 */
+        .image-preview-container {
+            margin: 10px 0;
+        }
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .upload-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -351,8 +367,13 @@
                         <input type="text" id="newProductName" placeholder="商品名称">
                     </div>
                     <div class="form-group">
-                        <label>商品图片URL:</label>
-                        <input type="text" id="newProductImage" placeholder="图片链接">
+                        <label>商品图片:</label>
+                        <input type="text" id="newProductImage" placeholder="图片URL" onchange="validateImageUrl(this)">
+                        <div class="image-preview-container">
+                            <img id="newProductImagePreview" class="image-preview hidden" alt="图片预览">
+                            <div id="imagePreviewError" class="hidden" style="color: red; font-size: 12px; margin-top: 5px;">图片URL无效，请检查链接</div>
+                        </div>
+                        <div class="upload-hint">提示：支持在线图片URL（如 http://example.com/image.jpg）或 base64 格式的图片</div>
                     </div>
                     <div class="form-group">
                         <label>商品描述:</label>
@@ -511,6 +532,63 @@
 
             // 启动实时订单轮询
             startLiveOrderPolling();
+
+            // 绑定图片URL验证事件
+            document.getElementById('newProductImage').addEventListener('blur', function() {
+                validateImageUrl(this);
+            });
+        }
+
+        // 验证图片URL并显示预览
+        function validateImageUrl(inputElement) {
+            const imageUrl = inputElement.value.trim();
+            const previewElement = document.getElementById('newProductImagePreview');
+            const errorElement = document.getElementById('imagePreviewError');
+
+            if (!imageUrl) {
+                previewElement.classList.add('hidden');
+                errorElement.classList.add('hidden');
+                return;
+            }
+
+            // 检查是否是有效的图片URL
+            if (isValidImageUrl(imageUrl)) {
+                // 尝试加载图片
+                const img = new Image();
+                img.onload = function() {
+                    previewElement.src = imageUrl;
+                    previewElement.classList.remove('hidden');
+                    errorElement.classList.add('hidden');
+                };
+                img.onerror = function() {
+                    previewElement.classList.add('hidden');
+                    errorElement.classList.remove('hidden');
+                };
+                img.src = imageUrl;
+            } else {
+                previewElement.classList.add('hidden');
+                errorElement.classList.remove('hidden');
+            }
+        }
+
+        // 检查是否是有效的图片URL
+        function isValidImageUrl(url) {
+            // 检查是否是base64格式
+            if (url.startsWith('data:image')) {
+                return true;
+            }
+            
+            // 检查是否是http(s)格式的URL
+            try {
+                const parsedUrl = new URL(url);
+                const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
+                const pathname = parsedUrl.pathname.toLowerCase();
+                
+                return validExtensions.some(ext => pathname.endsWith(ext));
+            } catch (e) {
+                // 如果URL格式无效，则返回false
+                return false;
+            }
         }
 
         // 启动实时订单轮询
@@ -681,7 +759,7 @@
                 card.className = 'product-card';
                 card.onclick = () => selectProduct(product.id);
                 card.innerHTML = `
-                    <img src="${product.image}" alt="${product.name}" class="product-image">
+                    <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.onerror=null;this.src='https://via.placeholder.com/200x200?text=图片加载失败';">
                     <div class="product-info">
                         <div class="product-title">${product.name}</div>
                         <div>¥${product.price}</div>
@@ -706,7 +784,7 @@
             // 显示商品详情
             document.getElementById('selectedProductDetail').innerHTML = `
                 <div class="product-detail">
-                    <img src="${selectedProduct.image}" alt="${selectedProduct.name}" style="max-width: 200px; margin-bottom: 15px;">
+                    <img src="${selectedProduct.image}" alt="${selectedProduct.name}" style="max-width: 200px; margin-bottom: 15px;" onerror="this.onerror=null;this.src='https://via.placeholder.com/200x200?text=图片加载失败';">
                     <h3>${selectedProduct.name}</h3>
                     <p><strong>价格:</strong> ¥${selectedProduct.price}</p>
                     <p><strong>描述:</strong> ${selectedProduct.description}</p>
@@ -773,7 +851,7 @@
             if (selectedProduct) {
                 document.getElementById('selectedProductDetail').innerHTML = `
                     <div class="product-detail">
-                        <img src="${selectedProduct.image}" alt="${selectedProduct.name}" style="max-width: 200px; margin-bottom: 15px;">
+                        <img src="${selectedProduct.image}" alt="${selectedProduct.name}" style="max-width: 200px; margin-bottom: 15px;" onerror="this.onerror=null;this.src='https://via.placeholder.com/200x200?text=图片加载失败';">
                         <h3>${selectedProduct.name}</h3>
                         <p><strong>价格:</strong> ¥${selectedProduct.price}</p>
                         <p><strong>描述:</strong> ${selectedProduct.description}</p>
@@ -812,6 +890,8 @@
         function hideAddProductForm() {
             document.getElementById('addProductForm').classList.add('hidden');
             document.getElementById('addProductForm').reset();
+            document.getElementById('newProductImagePreview').classList.add('hidden');
+            document.getElementById('imagePreviewError').classList.add('hidden');
         }
 
         // 添加商品
@@ -823,6 +903,12 @@
 
             if (!name || !image || !desc || !price) {
                 alert('请填写完整商品信息');
+                return;
+            }
+
+            // 验证图片URL
+            if (!isValidImageUrl(image)) {
+                alert('请输入有效的图片URL（支持JPG、PNG、GIF等格式）');
                 return;
             }
 
@@ -1305,3 +1391,6 @@
     </script>
 </body>
 </html>
+
+
+
