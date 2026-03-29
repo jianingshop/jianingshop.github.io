@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>礼品预定系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .auth-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .hidden {
+            display: none;
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .product-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .product-info {
+            padding: 15px;
+        }
+        .product-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .product-detail {
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .order-form {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .admin-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .time-slot {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 5px;
+            background: #e9ecef;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .time-slot.selected {
+            background: #667eea;
+            color: white;
+            border-color: #764ba2;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #28a745;
+            color: white;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+        .customer-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        .selected-product {
+            border: 2px solid #667eea;
+            background: #f8f9ff;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            padding: 12px 24px;
+            background: #e9ecef;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .import-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .order-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #28a745;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .order-status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .status-pending { background-color: #ffc107; color: #856404; }
+        .status-processing { background-color: #17a2b8; color: #fff; }
+        .status-completed { background-color: #28a745; color: #fff; }
+        .status-cancelled { background-color: #dc3545; color: #fff; }
+        .order-details {
+            margin: 10px 0;
+        }
+        .order-actions {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>礼品预定系统</h1>
+        <p>广州佳柠贸易有限公司</p>
+    </header>
+
+    <div class="container">
+        <!-- 登录页面 -->
+        <div id="loginPage" class="auth-section">
+            <h2>客户登录</h2>
+            <div class="form-group">
+                <label>姓名:</label>
+                <input type="text" id="customerName" placeholder="请输入您的姓名">
+            </div>
+            <div class="form-group">
+                <label>手机号:</label>
+                <input type="tel" id="customerPhone" placeholder="请输入您的手机号">
+            </div>
+            <button onclick="login()">登录</button>
+            <!-- 隐藏的管理员登录按钮 -->
+            <!-- <button class="btn-secondary" onclick="showAdminLogin()">管理员登录</button> -->
+        </div>
+
+        <!-- 管理员登录页面 -->
+        <div id="adminLoginPage" class="auth-section hidden">
+            <h2>管理员登录</h2>
+            <div class="form-group">
+                <label>用户名:</label>
+                <input type="text" id="adminUsername" placeholder="请输入用户名">
+            </div>
+            <div class="form-group">
+                <label>密码:</label>
+                <input type="password" id="adminPassword" placeholder="请输入密码">
+            </div>
+            <button onclick="adminLogin()">登录</button>
+            <button class="btn-secondary" onclick="showCustomerLogin()">返回客户登录</button>
+        </div>
+
+        <!-- 前台主页面 -->
+        <div id="frontPage" class="hidden">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('products')">商品浏览</button>
+                <button class="tab-btn" onclick="switchTab('cart')">购物车</button>
+                <button class="tab-btn" onclick="switchTab('orders')">我的订单</button>
+            </div>
+            <div id="productsTab" class="tab-content active">
+                <h2>商品列表</h2>
+                <div id="productGrid" class="product-grid"></div>
+            </div>
+            <div id="cartTab" class="tab-content">
+                <h2>购物车</h2>
+                <div id="selectedProductDetail"></div>
+                <div id="orderForm" class="order-form hidden">
+                    <h3>填写收货信息</h3>
+                    <div class="form-group">
+                        <label>收货地区:</label>
+                        <input type="text" id="deliveryArea" placeholder="请输入省、市、区/县等具体地址">
+                    </div>
+                    <div class="form-group">
+                        <label>详细地址:</label>
+                        <input type="text" id="addressDetail" placeholder="请输入详细地址">
+                    </div>
+                    <div class="form-group">
+                        <label>收件人姓名:</label>
+                        <input type="text" id="recipientName" placeholder="请输入收件人姓名">
+                    </div>
+                    <div class="form-group">
+                        <label>收件人手机:</label>
+                        <input type="tel" id="recipientPhone" placeholder="请输入收件人手机">
+                    </div>
+                    <div class="form-group">
+                        <label>收货日期:</label>
+                        <input type="date" id="deliveryDate">
+                    </div>
+                    <div class="form-group">
+                        <label>配送时间段:</label>
+                        <div>
+                            <span class="time-slot" onclick="selectTimeSlot(this)">10:00-12:00</span>
+                            <span class="time-slot" onclick="selectTimeSlot(this)">12:00-14:00</span>
+                            <span class="time-slot" onclick="selectTimeSlot(this)">14:00-16:00</span>
+                            <span class="time-slot" onclick="selectTimeSlot(this)">16:00-18:00</span>
+                            <span class="time-slot" onclick="selectTimeSlot(this)">18:00-20:00</span>
+                        </div>
+                        <input type="hidden" id="selectedTimeSlot">
+                    </div>
+                    <button onclick="submitOrder()">提交订单</button>
+                </div>
+            </div>
+            <div id="ordersTab" class="tab-content">
+                <h2>我的订单</h2>
+                <table id="myOrdersTable">
+                    <thead>
+                        <tr>
+                            <th>订单编号</th>
+                            <th>商品名称</th>
+                            <th>收货地址</th>
+                            <th>收货时间</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myOrdersBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 后台管理页面 -->
+        <div id="adminPanel" class="hidden">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchAdminTab('adminProducts')">商品管理</button>
+                <button class="tab-btn" onclick="switchAdminTab('adminCustomers')">客户管理</button>
+                <button class="tab-btn" onclick="switchAdminTab('adminOrders')">订单管理</button>
+                <button class="tab-btn" onclick="switchAdminTab('adminData')">数据统计</button>
+            </div>
+            <div id="adminProductsTab" class="tab-content active admin-panel">
+                <h2>商品管理</h2>
+                <button onclick="showAddProductForm()">添加商品</button>
+                <div id="addProductForm" class="hidden">
+                    <div class="form-group">
+                        <label>商品名称:</label>
+                        <input type="text" id="newProductName" placeholder="商品名称">
+                    </div>
+                    <div class="form-group">
+                        <label>商品图片URL:</label>
+                        <input type="text" id="newProductImage" placeholder="图片链接">
+                    </div>
+                    <div class="form-group">
+                        <label>商品描述:</label>
+                        <textarea id="newProductDesc" rows="3" placeholder="商品描述"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>价格:</label>
+                        <input type="number" id="newProductPrice" placeholder="价格">
+                    </div>
+                    <button onclick="addProduct()">保存商品</button>
+                    <button class="btn-secondary" onclick="hideAddProductForm()">取消</button>
+                </div>
+                <table id="productsTable">
+                    <thead>
+                        <tr>
+                            <th>商品ID</th>
+                            <th>商品名称</th>
+                            <th>价格</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsBody"></tbody>
+                </table>
+            </div>
+            <div id="adminCustomersTab" class="tab-content admin-panel hidden">
+                <h2>客户管理</h2>
+                <button onclick="exportCustomers()">导出客户数据</button>
+                <div class="form-group">
+                    <label>批量导入客户数据 (Excel):</label>
+                    <input type="file" id="customerFile" accept=".xlsx,.xls">
+                    <button onclick="importCustomers()">导入</button>
+                    <div id="customerImportStatus" class="import-status hidden"></div>
+                </div>
+                <table id="customersTable">
+                    <thead>
+                        <tr>
+                            <th>姓名</th>
+                            <th>手机号</th>
+                            <th>登录次数</th>
+                            <th>备注</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customersBody"></tbody>
+                </table>
+            </div>
+            <div id="adminOrdersTab" class="tab-content admin-panel hidden">
+                <h2>订单管理</h2>
+                <div class="form-group">
+                    <label>筛选订单状态:</label>
+                    <select id="orderStatusFilter" onchange="filterOrders()">
+                        <option value="all">全部</option>
+                        <option value="pending">待处理</option>
+                        <option value="processing">处理中</option>
+                        <option value="completed">已完成</option>
+                        <option value="cancelled">已取消</option>
+                    </select>
+                </div>
+                <button onclick="exportOrders()">导出订单数据</button>
+                <div class="form-group">
+                    <label>批量导入订单数据 (Excel):</label>
+                    <input type="file" id="orderFile" accept=".xlsx,.xls">
+                    <button onclick="importOrders()">导入</button>
+                    <div id="orderImportStatus" class="import-status hidden"></div>
+                </div>
+                <!-- 在线显示区域 -->
+                <div id="onlineOrdersDisplay">
+                    <h3>实时订单动态</h3>
+                    <div id="liveOrdersContainer"></div>
+                </div>
+                <h3>订单列表</h3>
+                <table id="ordersTable">
+                    <thead>
+                        <tr>
+                            <th>订单编号</th>
+                            <th>客户姓名</th>
+                            <th>商品名称</th>
+                            <th>收货地址</th>
+                            <th>收货时间</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersBody"></tbody>
+                </table>
+            </div>
+            <div id="adminDataTab" class="tab-content admin-panel hidden">
+                <h2>数据统计</h2>
+                <div id="statisticsInfo"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入 SheetJS 库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        // 数据存储
+        let products = JSON.parse(localStorage.getItem('products')) || [
+            {
+                id: 1,
+                name: 'iPhone 14',
+                image: 'https://via.placeholder.com/200x200?text=iPhone+14',
+                description: '最新款iPhone，性能强劲',
+                price: 5999,
+                status: 'active'
+            },
+            {
+                id: 2,
+                name: 'MacBook Pro',
+                image: 'https://via.placeholder.com/200x200?text=MacBook+Pro',
+                description: '专业级笔记本电脑',
+                price: 12999,
+                status: 'active'
+            },
+            {
+                id: 3,
+                name: 'iPad Air',
+                image: 'https://via.placeholder.com/200x200?text=iPad+Air',
+                description: '轻薄便携的平板电脑',
+                price: 4399,
+                status: 'active'
+            }
+        ];
+        let customers = JSON.parse(localStorage.getItem('customers')) || [];
+        let orders = JSON.parse(localStorage.getItem('orders')) || [];
+
+        let currentUser = null;
+        let currentAdmin = null;
+        let selectedProduct = null;
+        let selectedTimeSlot = '';
+        let currentOrderFilter = 'all'; // 当前订单筛选状态
+
+        // 初始化
+        function init() {
+            // 绑定回车键事件
+            document.getElementById('customerName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') login();
+            });
+            document.getElementById('customerPhone').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') login();
+            });
+
+            // 设置最小配送日期为明天
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('deliveryDate').min = tomorrow.toISOString().split('T')[0];
+
+            // 监听键盘事件以显示管理员登录
+            document.addEventListener('keydown', function(event) {
+                if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'b') {
+                    event.preventDefault(); // 防止默认的快捷键行为
+                    showAdminLogin();
+                }
+            });
+
+            // 启动实时订单轮询
+            startLiveOrderPolling();
+        }
+
+        // 启动实时订单轮询
+        function startLiveOrderPolling() {
+            setInterval(updateLiveOrders, 5000); // 每5秒更新一次
+        }
+
+        // 更新实时订单显示
+        function updateLiveOrders() {
+            if (document.getElementById('adminPanel').classList.contains('hidden')) return; // 只有在管理员面板显示时才更新
+            const liveContainer = document.getElementById('liveOrdersContainer');
+            const recentOrders = [...orders]
+                .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
+                .slice(0, 5); // 获取最近5个订单
+
+            liveContainer.innerHTML = '';
+            if (recentOrders.length === 0) {
+                liveContainer.innerHTML = '<p>暂无订单</p>';
+                return;
+            }
+            recentOrders.forEach(order => {
+                const orderItem = document.createElement('div');
+                orderItem.className = 'order-item';
+                orderItem.innerHTML = `
+                    <div class="order-header">
+                        <strong>订单: ${order.id}</strong>
+                        <span class="order-status status-${order.status}">${getOrderStatusText(order.status)}</span>
+                    </div>
+                    <div class="order-details">
+                        <p><strong>客户:</strong> ${order.customerName}</p>
+                        <p><strong>商品:</strong> ${order.productName}</p>
+                        <p><strong>地址:</strong> ${order.address}</p>
+                        <p><strong>时间:</strong> ${order.deliveryDate} ${order.deliveryTime}</p>
+                        <p><strong>下单时间:</strong> ${new Date(order.orderDate).toLocaleString()}</p>
+                    </div>
+                `;
+                liveContainer.appendChild(orderItem);
+            });
+        }
+
+        // 获取订单状态文字
+        function getOrderStatusText(status) {
+            switch(status) {
+                case 'pending': return '待处理';
+                case 'processing': return '处理中';
+                case 'completed': return '已完成';
+                case 'cancelled': return '已取消';
+                default: return status;
+            }
+        }
+
+        // 切换标签页
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+            if (tabName === 'products') {
+                loadProducts();
+            } else if (tabName === 'cart') {
+                showCart();
+            } else if (tabName === 'orders') {
+                loadMyOrders();
+            }
+        }
+
+        // 切换管理员标签页
+        function switchAdminTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+            if (tabName === 'adminProducts') {
+                loadAdminProducts();
+            } else if (tabName === 'adminCustomers') {
+                loadAdminCustomers();
+            } else if (tabName === 'adminOrders') {
+                loadAdminOrders();
+                updateLiveOrders(); // 切换到订单管理时也更新实时订单
+            } else if (tabName === 'adminData') {
+                loadStatistics();
+            }
+        }
+
+        // 显示客户登录
+        function showCustomerLogin() {
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('adminLoginPage').classList.add('hidden');
+        }
+
+        // 显示管理员登录
+        function showAdminLogin() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('adminLoginPage').classList.remove('hidden');
+        }
+
+        // 客户登录
+        function login() {
+            const name = document.getElementById('customerName').value.trim();
+            const phone = document.getElementById('customerPhone').value.trim();
+
+            if (!name || !phone) {
+                alert('请填写姓名和手机号');
+                return;
+            }
+
+            // 检查客户是否存在，如果不存在则创建
+            let customer = customers.find(c => c.phone === phone);
+            if (!customer) {
+                customer = {
+                    name,
+                    phone,
+                    createdAt: new Date().toISOString(),
+                    notes: '',
+                    loginCount: 1 // 新客户登录次数为1
+                };
+                customers.push(customer);
+            } else {
+                customer.name = name; // 更新姓名
+                // 增加登录次数
+                customer.loginCount = (customer.loginCount || 0) + 1;
+            }
+
+            saveData();
+            currentUser = customer;
+
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('frontPage').classList.remove('hidden');
+            loadProducts();
+        }
+
+        // 管理员登录
+        function adminLogin() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+
+            if (username === 'jianing' && password === 'rita81939449') {
+                currentAdmin = {username};
+                document.getElementById('adminLoginPage').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+
+                // 加载初始数据
+                loadAdminProducts();
+                loadAdminCustomers();
+                loadAdminOrders();
+                loadStatistics();
+                updateLiveOrders(); // 初始化实时订单显示
+            } else {
+                alert('用户名或密码错误');
+            }
+        }
+
+        // 保存数据到localStorage
+        function saveData() {
+            localStorage.setItem('products', JSON.stringify(products));
+            localStorage.setItem('customers', JSON.stringify(customers));
+            localStorage.setItem('orders', JSON.stringify(orders));
+        }
+
+        // 加载商品列表
+        function loadProducts() {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = '';
+            products.filter(p => p.status === 'active').forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.onclick = () => selectProduct(product.id);
+                card.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}" class="product-image">
+                    <div class="product-info">
+                        <div class="product-title">${product.name}</div>
+                        <div>¥${product.price}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // 选择商品
+        function selectProduct(productId) {
+            selectedProduct = products.find(p => p.id == productId);
+
+            // 清除其他商品的选择状态
+            document.querySelectorAll('.product-card').forEach(card => {
+                card.classList.remove('selected-product');
+            });
+
+            // 高亮选中的商品
+            event.currentTarget.classList.add('selected-product');
+
+            // 显示商品详情
+            document.getElementById('selectedProductDetail').innerHTML = `
+                <div class="product-detail">
+                    <img src="${selectedProduct.image}" alt="${selectedProduct.name}" style="max-width: 200px; margin-bottom: 15px;">
+                    <h3>${selectedProduct.name}</h3>
+                    <p><strong>价格:</strong> ¥${selectedProduct.price}</p>
+                    <p><strong>描述:</strong> ${selectedProduct.description}</p>
+                </div>
+            `;
+
+            // 显示订单表单
+            document.getElementById('orderForm').classList.remove('hidden');
+        }
+
+        // 选择配送时间段
+        function selectTimeSlot(element) {
+            // 移除所有选中状态
+            document.querySelectorAll('.time-slot').forEach(slot => slot.classList.remove('selected'));
+            // 添加当前选中状态
+            element.classList.add('selected');
+            selectedTimeSlot = element.textContent;
+            document.getElementById('selectedTimeSlot').value = selectedTimeSlot;
+        }
+
+        // 提交订单
+        function submitOrder() {
+            const deliveryArea = document.getElementById('deliveryArea').value.trim();
+            const addressDetail = document.getElementById('addressDetail').value.trim();
+            const recipientName = document.getElementById('recipientName').value.trim();
+            const recipientPhone = document.getElementById('recipientPhone').value.trim();
+            const deliveryDate = document.getElementById('deliveryDate').value;
+
+            if (!deliveryArea || !addressDetail || !recipientName || !recipientPhone || !deliveryDate || !selectedTimeSlot) {
+                alert('请填写完整信息');
+                return;
+            }
+
+            const order = {
+                id: 'ORD' + Date.now(),
+                customerId: currentUser.phone,
+                customerName: currentUser.name,
+                productId: selectedProduct.id,
+                productName: selectedProduct.name,
+                address: `${deliveryArea} ${addressDetail}`,
+                recipientName: recipientName,
+                recipientPhone: recipientPhone,
+                deliveryDate: deliveryDate,
+                deliveryTime: selectedTimeSlot,
+                status: 'pending',
+                orderDate: new Date().toISOString()
+            };
+
+            orders.push(order);
+            saveData();
+            alert('订单提交成功！');
+
+            // 清空表单
+            document.getElementById('orderForm').reset();
+            selectedTimeSlot = '';
+            document.querySelectorAll('.time-slot').forEach(slot => slot.classList.remove('selected'));
+
+            // 刷新订单列表
+            loadMyOrders();
+        }
+
+        // 显示购物车
+        function showCart() {
+            if (selectedProduct) {
+                document.getElementById('selectedProductDetail').innerHTML = `
+                    <div class="product-detail">
+                        <img src="${selectedProduct.image}" alt="${selectedProduct.name}" style="max-width: 200px; margin-bottom: 15px;">
+                        <h3>${selectedProduct.name}</h3>
+                        <p><strong>价格:</strong> ¥${selectedProduct.price}</p>
+                        <p><strong>描述:</strong> ${selectedProduct.description}</p>
+                    </div>
+                `;
+                document.getElementById('orderForm').classList.remove('hidden');
+            } else {
+                document.getElementById('selectedProductDetail').innerHTML = '<p>请选择商品</p>';
+                document.getElementById('orderForm').classList.add('hidden');
+            }
+        }
+
+        // 加载我的订单
+        function loadMyOrders() {
+            const tbody = document.getElementById('myOrdersBody');
+            tbody.innerHTML = '';
+            const userOrders = orders.filter(o => o.customerId === currentUser.phone);
+            userOrders.forEach(order => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${order.id}</td>
+                    <td>${order.productName}</td>
+                    <td>${order.address}</td>
+                    <td>${order.deliveryDate} ${order.deliveryTime}</td>
+                    <td>${order.status === 'pending' ? '待处理' : order.status === 'processing' ? '处理中' : '已完成'}</td>
+                `;
+            });
+        }
+
+        // 显示添加商品表单
+        function showAddProductForm() {
+            document.getElementById('addProductForm').classList.remove('hidden');
+        }
+
+        // 隐藏添加商品表单
+        function hideAddProductForm() {
+            document.getElementById('addProductForm').classList.add('hidden');
+            document.getElementById('addProductForm').reset();
+        }
+
+        // 添加商品
+        function addProduct() {
+            const name = document.getElementById('newProductName').value;
+            const image = document.getElementById('newProductImage').value;
+            const desc = document.getElementById('newProductDesc').value;
+            const price = document.getElementById('newProductPrice').value;
+
+            if (!name || !image || !desc || !price) {
+                alert('请填写完整商品信息');
+                return;
+            }
+
+            const newProduct = {
+                id: Date.now(),
+                name,
+                image,
+                description: desc,
+                price: parseFloat(price),
+                status: 'active'
+            };
+            products.push(newProduct);
+            saveData();
+            loadAdminProducts();
+            hideAddProductForm();
+            alert('商品添加成功！');
+        }
+
+        // 上下架商品
+        function toggleProductStatus(productId) {
+            const product = products.find(p => p.id == productId);
+            product.status = product.status === 'active' ? 'inactive' : 'active';
+            saveData();
+            loadAdminProducts();
+        }
+
+        // 编辑商品
+        function editProduct(productId) {
+            const product = products.find(p => p.id == productId);
+            const newName = prompt('修改商品名称:', product.name);
+            const newDesc = prompt('修改商品描述:', product.description);
+            const newPrice = prompt('修改商品价格:', product.price);
+            if (newName !== null) product.name = newName;
+            if (newDesc !== null) product.description = newDesc;
+            if (newPrice !== null) product.price = parseFloat(newPrice);
+            saveData();
+            loadAdminProducts();
+        }
+
+        // 删除商品
+        function deleteProduct(productId) {
+            if (confirm('确定要删除这个商品吗？')) {
+                products = products.filter(p => p.id != productId);
+                saveData();
+                loadAdminProducts();
+            }
+        }
+
+        // 加载管理员商品列表
+        function loadAdminProducts() {
+            const tbody = document.getElementById('productsBody');
+            tbody.innerHTML = '';
+            products.forEach(product => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${product.id}</td>
+                    <td>${product.name}</td>
+                    <td>¥${product.price}</td>
+                    <td>${product.status === 'active' ? '上架' : '下架'}</td>
+                    <td>
+                        <button onclick="editProduct(${product.id})" class="btn-secondary">编辑</button>
+                        <button onclick="toggleProductStatus(${product.id})" class="btn-${product.status === 'active' ? 'danger' : 'success'}">${product.status === 'active' ? '下架' : '上架'}</button>
+                        <button onclick="deleteProduct(${product.id})" class="btn-danger">删除</button>
+                    </td>
+                `;
+            });
+        }
+
+        // 加载管理员客户列表
+        function loadAdminCustomers() {
+            const tbody = document.getElementById('customersBody');
+            tbody.innerHTML = '';
+            customers.forEach(customer => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${customer.name}</td>
+                    <td>${customer.phone}</td>
+                    <td id="loginCount_${customer.phone}">${customer.loginCount || 0}</td>
+                    <td><input type="text" value="${customer.notes || ''}" onchange="updateCustomerNote('${customer.phone}', this.value)" placeholder="添加备注"></td>
+                    <td>
+                        <button onclick="viewCustomerOrders('${customer.phone}')" class="btn-secondary">查看订单</button>
+                        <button onclick="modifyLoginCount('${customer.phone}')" class="btn-secondary">修改</button>
+                    </td>
+                `;
+            });
+        }
+
+        // 修改客户登录次数
+        function modifyLoginCount(phone) {
+            const customer = customers.find(c => c.phone === phone);
+            if (!customer) return;
+
+            const currentCount = customer.loginCount || 0;
+            const newCountStr = prompt('请输入新的登录次数:', currentCount);
+            if (newCountStr === null) return; // 用户取消
+
+            const newCount = parseInt(newCountStr, 10);
+            if (isNaN(newCount) || newCount < 0) {
+                alert('请输入有效的非负整数');
+                return;
+            }
+
+            customer.loginCount = newCount;
+            saveData();
+            loadAdminCustomers(); // 重新加载以更新UI
+        }
+
+
+        // 更新客户备注
+        function updateCustomerNote(phone, note) {
+            const customer = customers.find(c => c.phone === phone);
+            if (customer) {
+                customer.notes = note;
+                saveData();
+            }
+        }
+
+        // 查看客户订单
+        function viewCustomerOrders(phone) {
+            const customerOrders = orders.filter(o => o.customerId === phone);
+            alert(`客户 ${phone} 的订单数量: ${customerOrders.length}`);
+        }
+
+        // 加载管理员订单列表
+        function loadAdminOrders() {
+            const tbody = document.getElementById('ordersBody');
+            tbody.innerHTML = '';
+
+            // 根据筛选条件过滤订单
+            let filteredOrders = orders;
+            if (currentOrderFilter !== 'all') {
+                filteredOrders = orders.filter(o => o.status === currentOrderFilter);
+            }
+
+            // 按下单时间排序（最新的在前）
+            filteredOrders.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+
+            filteredOrders.forEach(order => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${order.id}</td>
+                    <td>${order.customerName}</td>
+                    <td>${order.productName}</td>
+                    <td>${order.address}</td>
+                    <td>${order.deliveryDate} ${order.deliveryTime}</td>
+                    <td>
+                        <select onchange="updateOrderStatus('${order.id}', this.value)" style="padding: 5px; border-radius: 3px;">
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>待处理</option>
+                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>处理中</option>
+                            <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>已完成</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>已取消</option>
+                        </select>
+                    </td>
+                    <td><button onclick="deleteOrder('${order.id}')" class="btn-danger">删除</button></td>
+                `;
+            });
+        }
+
+        // 更新订单状态
+        function updateOrderStatus(orderId, newStatus) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = newStatus;
+                saveData();
+                loadAdminOrders(); // 重新加载列表以反映更改
+                updateLiveOrders(); // 更新实时显示
+            }
+        }
+
+        // 删除订单
+        function deleteOrder(orderId) {
+            if (confirm('确定要删除这个订单吗？')) {
+                orders = orders.filter(o => o.id !== orderId);
+                saveData();
+                loadAdminOrders();
+                updateLiveOrders(); // 更新实时显示
+            }
+        }
+
+        // 筛选订单
+        function filterOrders() {
+            currentOrderFilter = document.getElementById('orderStatusFilter').value;
+            loadAdminOrders();
+        }
+
+        // 导出客户数据
+        function exportCustomers() {
+            let csvContent = '姓名,手机号,注册时间,备注,登录次数';
+            customers.forEach(customer => {
+                csvContent += `\n"${customer.name}","${customer.phone}","${customer.createdAt}","${customer.notes || ''}",${customer.loginCount || 0}`;
+            });
+            downloadCSV(csvContent, 'customers.csv');
+        }
+
+        // 导入客户数据
+        function importCustomers() {
+            const fileInput = document.getElementById('customerFile');
+            const file = fileInput.files[0];
+            const statusDiv = document.getElementById('customerImportStatus');
+
+            if (!file) {
+                alert('请选择一个Excel文件');
+                return;
+            }
+
+            try {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+
+                        // 获取第一个工作表
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+
+                        // 转换为JSON
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+                        // 验证列名
+                        const requiredColumns = ['姓名', '手机号'];
+                        const headers = Object.keys(jsonData[0] || {});
+                        for (const col of requiredColumns) {
+                            if (!headers.includes(col)) {
+                                throw new Error(`Excel文件缺少必要列: ${col}`);
+                            }
+                        }
+
+                        // 导入数据
+                        let successCount = 0;
+                        let duplicateCount = 0;
+                        jsonData.forEach(row => {
+                            const name = row['姓名']?.toString().trim();
+                            const phone = row['手机号']?.toString().trim();
+                            if (!name || !phone) return; // 跳过空行或无效行
+
+                            // 检查是否已存在
+                            const existingCustomer = customers.find(c => c.phone === phone);
+                            if (existingCustomer) {
+                                // 更新现有客户信息
+                                existingCustomer.name = name;
+                                if (row['备注']) existingCustomer.notes = row['备注'].toString();
+                                // 如果Excel包含登录次数，也进行更新
+                                if (row['登录次数'] !== undefined) {
+                                    existingCustomer.loginCount = parseInt(row['登录次数'], 10) || 0;
+                                }
+                                duplicateCount++;
+                            } else {
+                                // 添加新客户
+                                const newCustomer = {
+                                    name: name,
+                                    phone: phone,
+                                    createdAt: new Date().toISOString(),
+                                    notes: row['备注'] ? row['备注'].toString() : '',
+                                    loginCount: parseInt(row['登录次数'], 10) || 0 // 默认为0
+                                };
+                                customers.push(newCustomer);
+                                successCount++;
+                            }
+                        });
+
+                        saveData();
+                        loadAdminCustomers();
+                        statusDiv.innerHTML = `导入完成！成功新增 ${successCount} 条记录，更新 ${duplicateCount} 条记录。`;
+                        statusDiv.classList.remove('hidden');
+                        setTimeout(() => {
+                            statusDiv.classList.add('hidden');
+                            fileInput.value = ''; // 清空文件选择框
+                        }, 5000);
+
+                    } catch (error) {
+                        console.error('导入客户数据失败:', error);
+                        statusDiv.innerHTML = `导入失败: ${error.message}`;
+                        statusDiv.classList.remove('hidden');
+                        setTimeout(() => statusDiv.classList.add('hidden'), 5000);
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            } catch (error) {
+                console.error('读取文件失败:', error);
+                statusDiv.innerHTML = `读取文件失败: ${error.message}`;
+                statusDiv.classList.remove('hidden');
+                setTimeout(() => statusDiv.classList.add('hidden'), 5000);
+            }
+        }
+
+        // 导入订单数据
+        function importOrders() {
+            const fileInput = document.getElementById('orderFile');
+            const file = fileInput.files[0];
+            const statusDiv = document.getElementById('orderImportStatus');
+
+            if (!file) {
+                alert('请选择一个Excel文件');
+                return;
+            }
+
+            try {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+
+                        // 获取第一个工作表
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+
+                        // 转换为JSON
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+                        // 验证列名
+                        const requiredColumns = ['客户姓名', '商品名称', '收货地址', '收货时间'];
+                        const headers = Object.keys(jsonData[0] || {});
+                        for (const col of requiredColumns) {
+                            if (!headers.includes(col)) {
+                                throw new Error(`Excel文件缺少必要列: ${col}`);
+                            }
+                        }
+
+                        // 导入数据
+                        let successCount = 0;
+                        let errorCount = 0;
+                        jsonData.forEach(row => {
+                            const customerName = row['客户姓名']?.toString().trim();
+                            const productName = row['商品名称']?.toString().trim();
+                            const address = row['收货地址']?.toString().trim();
+                            const deliveryTime = row['收货时间']?.toString().trim();
+
+                            if (!customerName || !productName || !address || !deliveryTime) {
+                                errorCount++; // 跳过无效行
+                                return;
+                            }
+
+                            // 解析收货时间
+                            let deliveryDate, deliveryTimeSlot;
+                            const timeParts = deliveryTime.split(' ');
+                            if (timeParts.length >= 2) {
+                                deliveryDate = timeParts[0];
+                                deliveryTimeSlot = timeParts[1];
+                            } else {
+                                // 如果格式不对，尝试其他方式
+                                deliveryDate = deliveryTime;
+                                deliveryTimeSlot = '10:00-12:00'; // 默认时段
+                            }
+
+                            // 查找对应的商品ID
+                            const product = products.find(p => p.name === productName);
+                            if (!product) {
+                                console.warn(`未找到商品: ${productName}`);
+                                errorCount++;
+                                return;
+                            }
+
+                            // 创建订单对象
+                            const newOrder = {
+                                id: 'ORD' + Date.now() + Math.floor(Math.random() * 1000), // 生成唯一ID
+                                customerId: '', // 如果Excel中有手机号，则使用；否则用姓名
+                                customerName: customerName,
+                                productId: product.id,
+                                productName: product.name,
+                                address: address,
+                                recipientName: customerName, // 默认收件人是客户姓名
+                                recipientPhone: row['收件人手机'] ? row['收件人手机'].toString() : '',
+                                deliveryDate: deliveryDate,
+                                deliveryTime: deliveryTimeSlot,
+                                status: row['状态'] ? row['状态'].toString() : 'pending',
+                                orderDate: new Date().toISOString()
+                            };
+
+                            // 如果Excel中有手机号，优先使用手机号作为customerId
+                            if (row['收件人手机']) {
+                                newOrder.customerId = row['收件人手机'].toString();
+                                // 如果客户不存在，创建一个
+                                const existingCustomer = customers.find(c => c.phone === newOrder.customerId);
+                                if (!existingCustomer) {
+                                    const newCustomer = {
+                                        name: customerName,
+                                        phone: newOrder.customerId,
+                                        createdAt: new Date().toISOString(),
+                                        notes: '',
+                                        loginCount: 0 // 新导入的客户登录次数为0
+                                    };
+                                    customers.push(newCustomer);
+                                }
+                            } else {
+                                // 如果没有手机号，用客户姓名作为customerId
+                                newOrder.customerId = customerName;
+                            }
+
+                            orders.push(newOrder);
+                            successCount++;
+                        });
+
+                        saveData();
+                        loadAdminOrders();
+                        loadAdminCustomers(); // 可能添加了新客户
+                        updateLiveOrders(); // 更新实时显示
+                        statusDiv.innerHTML = `导入完成！成功导入 ${successCount} 条订单，发现 ${errorCount} 条错误数据。`;
+                        statusDiv.classList.remove('hidden');
+                        setTimeout(() => {
+                            statusDiv.classList.add('hidden');
+                            fileInput.value = ''; // 清空文件选择框
+                        }, 5000);
+
+                    } catch (error) {
+                        console.error('导入订单数据失败:', error);
+                        statusDiv.innerHTML = `导入失败: ${error.message}`;
+                        statusDiv.classList.remove('hidden');
+                        setTimeout(() => statusDiv.classList.add('hidden'), 5000);
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            } catch (error) {
+                console.error('读取文件失败:', error);
+                statusDiv.innerHTML = `读取文件失败: ${error.message}`;
+                statusDiv.classList.remove('hidden');
+                setTimeout(() => statusDiv.classList.add('hidden'), 5000);
+            }
+        }
+
+        // 导出订单数据
+        function exportOrders() {
+            let csvContent = '订单编号,客户姓名,商品名称,收货地址,收货时间,订单状态,下单时间';
+            orders.forEach(order => {
+                csvContent += `\n"${order.id}","${order.customerName}","${order.productName}","${order.address}","${order.deliveryDate} ${order.deliveryTime}","${order.status}","${order.orderDate}"`;
+            });
+            downloadCSV(csvContent, 'orders.csv');
+        }
+
+        // 下载CSV文件
+        function downloadCSV(csv, filename) {
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // 加载统计数据
+        function loadStatistics() {
+            const totalProducts = products.length;
+            const activeProducts = products.filter(p => p.status === 'active').length;
+            const totalCustomers = customers.length;
+            const totalOrders = orders.length;
+            const completedOrders = orders.filter(o => o.status === 'completed').length;
+
+            document.getElementById('statisticsInfo').innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">
+                    <div style="background: #e9ecef; padding: 15px; border-radius: 5px; text-align: center;">
+                        <h3>${totalProducts}</h3>
+                        <p>总商品数</p>
+                    </div>
+                    <div style="background: #d4edda; padding: 15px; border-radius: 5px; text-align: center;">
+                        <h3>${activeProducts}</h3>
+                        <p>上架商品数</p>
+                    </div>
+                    <div style="background: #cce5ff; padding: 15px; border-radius: 5px; text-align: center;">
+                        <h3>${totalCustomers}</h3>
+                        <p>总客户数</p>
+                    </div>
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 5px; text-align: center;">
+                        <h3>${totalOrders}</h3>
+                        <p>总订单数</p>
+                    </div>
+                    <div style="background: #d1ecf1; padding: 15px; border-radius: 5px; text-align: center;">
+                        <h3>${completedOrders}</h3>
+                        <p>已完成订单</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 页面初始化
+        window.onload = init;
+    </script>
+</body>
+</html>
