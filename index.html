@@ -617,22 +617,24 @@
                 return;
             }
 
-            // 检查客户是否存在，如果不存在则创建
+            // 检查客户是否存在（从导入的客户列表中查找）
             let customer = customers.find(c => c.phone === phone);
+            
             if (!customer) {
-                customer = {
-                    name,
-                    phone,
-                    createdAt: new Date().toISOString(),
-                    notes: '',
-                    loginCount: 1 // 新客户登录次数为1
-                };
-                customers.push(customer);
-            } else {
-                customer.name = name; // 更新姓名
-                // 增加登录次数
-                customer.loginCount = (customer.loginCount || 0) + 1;
+                alert('您尚未被系统管理员导入，无法登录');
+                return;
             }
+
+            // 验证姓名是否匹配
+            if (customer.name !== name) {
+                alert('姓名与系统记录不符，请检查后重新输入');
+                return;
+            }
+
+            // 更新客户信息
+            customer.name = name; // 更新姓名
+            // 增加登录次数
+            customer.loginCount = (customer.loginCount || 0) + 1;
 
             saveData();
             currentUser = customer;
